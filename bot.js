@@ -107,6 +107,11 @@ bot.hears("🏰 Сказки", async (ctx) => {
     const res = await fetch(apiUrl);
     const files = await res.json();
 
+    if (!Array.isArray(files)) {
+      console.error("GitHub API error:", files);
+      return ctx.reply("❌ GitHub API вернул ошибку. Проверь путь.");
+    }
+
     const dirs = files.filter((item) => item.type === "dir");
 
     if (!dirs.length) return ctx.reply("❌ Пока нет доступных сказок.");
