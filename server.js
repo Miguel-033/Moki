@@ -17,7 +17,7 @@ app.post("/telegram", async (req, res) => {
     res.status(200).send("OK");
   } catch (err) {
     console.error("❌ handleUpdate error:", err);
-    res.status(200).send("OK"); // даже при ошибке отвечаем
+    res.status(200).send("OK");
   }
 });
 
