@@ -39,7 +39,7 @@ bot.start((ctx) => {
 });
 
 bot.hears(/Уровень (A1|A2|B1|B2)/, (ctx) => {
-  selectedLevel = ctx.match[1].toLowerCase();
+  selectedLevel = ctx.match[1].toUpperCase(); // ✅ Теперь всегда A1, A2 и т.д.
   ctx.reply(
     `✅ Уровень ${ctx.match[1]} выбран. Открываю главное меню…`,
     mainMenuKeyboard
@@ -54,7 +54,7 @@ bot.hears("🏰 Сказки", async (ctx) => {
   try {
     const res = await axios.get(`${API_BASE_URL}/fairy-tales`);
     const tales = res.data.filter(
-      (tale) => tale.level.toLowerCase() === selectedLevel
+      (tale) => tale.level.toUpperCase() === selectedLevel // ✅ Сравнение в верхнем регистре
     );
 
     if (tales.length === 0) {
