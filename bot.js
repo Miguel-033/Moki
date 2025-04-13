@@ -1,8 +1,11 @@
-const { Telegraf, Markup } = require("telegraf");
+const { Telegraf, Markup, session } = require("telegraf");
 const axios = require("axios");
-const bot = new Telegraf(process.env.BOT_TOKEN);
 
+const bot = new Telegraf(process.env.BOT_TOKEN);
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5000";
+
+// Подключаем сессию
+bot.use(session());
 
 // Логируем все апдейты
 bot.use((ctx, next) => {
@@ -24,6 +27,7 @@ const mainMenuKeyboard = Markup.keyboard([
 
 // Команда /start
 bot.start((ctx) => {
+  ctx.session = {}; // обнуляем сессию на старте
   ctx.reply(
     `👋 Привет, ${ctx.from.first_name || "друг"}!
 
@@ -43,7 +47,7 @@ bot.start((ctx) => {
 // Обработка выбора уровня
 bot.hears(/Уровень (A1|A2|B1|B2)/, (ctx) => {
   const level = ctx.match[1];
-  ctx.session = { ...ctx.session, level };
+  ctx.session.level = level;
   ctx.reply(
     `✅ Уровень ${level} выбран. Открываю главное меню…`,
     mainMenuKeyboard
