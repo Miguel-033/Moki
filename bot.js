@@ -9,20 +9,14 @@ let selectedLevel = null;
 const userSession = new Map(); // key: userId, value: { selectedTale, tales }
 
 const levelKeyboard = Markup.keyboard([
-  [
-    "\uD83C\uDDEA\uD83C\uDDF8 Уровень A1",
-    "\uD83C\uDDEA\uD83C\uDDF8 Уровень A2",
-  ],
-  [
-    "\uD83C\uDDEA\uD83C\uDDF8 Уровень B1",
-    "\uD83C\uDDEA\uD83C\uDDF8 Уровень B2",
-  ],
+  ["🇪🇸 Уровень A1", "🇪🇸 Уровень A2"],
+  ["🇪🇸 Уровень B1", "🇪🇸 Уровень B2"],
 ]).resize();
 
 const mainMenuKeyboard = Markup.keyboard([
-  ["\uD83C\uDFF0 Сказки", "\uD83D\uDCD8 Рассказы"],
+  ["🏰 Сказки", "📘 Рассказы"],
   ["⏳ Времена", "❤️ Избранное"],
-  ["\uD83D\uDE4F Поддержать", "ℹ️ Сменить уровень"],
+  ["🙏 Поддержать", "ℹ️ Сменить уровень"],
 ]).resize();
 
 bot.start((ctx) => {
@@ -50,7 +44,7 @@ bot.hears(/Уровень (A1|A2|B1|B2)/, (ctx) => {
   );
 });
 
-bot.hears("\uD83C\uDFF0 Сказки", async (ctx) => {
+bot.hears("🏰 Сказки", async (ctx) => {
   if (!selectedLevel) {
     return ctx.reply("❗ Сначала выбери уровень", levelKeyboard);
   }
@@ -68,7 +62,7 @@ bot.hears("\uD83C\uDFF0 Сказки", async (ctx) => {
     userSession.get(ctx.from.id).tales = tales;
 
     ctx.reply(
-      "\uD83D\uDCD6 Вот список сказок:",
+      "📚 Вот список сказок:",
       Markup.inlineKeyboard(
         tales.map((tale) => [
           Markup.button.callback(tale.title, `TALE_${tale.slug}`),
@@ -89,7 +83,7 @@ bot.action(/^TALE_(.+)/, async (ctx) => {
 
   session.selectedTale = tale;
 
-  await ctx.reply(`\uD83C\uDF10 *${tale.title}*`, {
+  await ctx.reply(`🌍 *${tale.title}*`, {
     parse_mode: "Markdown",
     ...Markup.inlineKeyboard([
       [Markup.button.callback("📖 Читать", "READ")],
@@ -108,7 +102,8 @@ bot.action("READ", (ctx) => {
 bot.action("LISTEN", (ctx) => {
   const tale = userSession.get(ctx.from.id)?.selectedTale;
   if (!tale?.audio_url) return ctx.answerCbQuery("Аудио недоступно");
-  ctx.replyWithAudio(tale.audio_url);
+
+  ctx.replyWithVoice({ url: tale.audio_url }); // ✅ отправляем как voice
 });
 
 bot.action("BACK_TO_LIST", (ctx) => {
@@ -123,10 +118,10 @@ bot.action("BACK_TO_LIST", (ctx) => {
   );
 });
 
-bot.hears("\uD83D\uDCD8 Рассказы", (ctx) => ctx.reply("📖 Список рассказов…"));
+bot.hears("📘 Рассказы", (ctx) => ctx.reply("📖 Список рассказов…"));
 bot.hears("⏳ Времена", (ctx) => ctx.reply("⏳ Времена испанского языка…"));
 bot.hears("❤️ Избранное", (ctx) => ctx.reply("❤️ Твои избранные истории…"));
-bot.hears("\uD83D\uDE4F Поддержать", (ctx) =>
+bot.hears("🙏 Поддержать", (ctx) =>
   ctx.reply(`🙏 Поддержать проект\n👉 https://boosty.to/yourpage`)
 );
 bot.hears("ℹ️ Сменить уровень", (ctx) => {
