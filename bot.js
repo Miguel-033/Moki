@@ -153,3 +153,5 @@ bot.hears("❤️ Избранное", (ctx) => ctx.reply("❤️ Твои из�
 bot.hears("🙏 Поддержать", (ctx) => {
   ctx.reply(`🙏 Поддержать проект\n👉 https://boosty.to/yourpage`);
 });
+
+module.exports = bot;
