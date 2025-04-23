@@ -4,9 +4,11 @@ require("dotenv").config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const API_BASE_URL = "https://moki-bd.onrender.com";
+const START_IMAGE_URL =
+  "https://raw.githubusercontent.com/Miguel-033/moki-audio/main/moki/images/moki-avatar.png";
 
 let selectedLevel = null;
-const userSession = new Map(); // key: userId, value: { selectedTale, tales }
+const userSession = new Map();
 
 const levelKeyboard = Markup.keyboard([
   ["🇪🇸 Уровень A1", "🇪🇸 Уровень A2"],
@@ -19,14 +21,25 @@ const mainMenuKeyboard = Markup.keyboard([
   ["🙏 Поддержать", "ℹ️ Сменить уровень"],
 ]).resize();
 
-bot.start((ctx) => {
+bot.start(async (ctx) => {
   selectedLevel = null;
-  ctx.reply(
-    `👋 Привет, ${ctx.from.first_name || "друг"}!
-\n` +
+  await ctx.replyWithPhoto(
+    { url: START_IMAGE_URL },
+    {
+      caption: "👋 Я — бот Moki. Нажми на кнопку ниже, чтобы начать!",
+      ...Markup.inlineKeyboard([
+        [Markup.button.callback("👋 Привет, Moki", "SAY_HELLO")],
+      ]),
+    }
+  );
+});
+
+bot.action("SAY_HELLO", async (ctx) => {
+  await ctx.editMessageReplyMarkup(); // убираем кнопки
+  await ctx.reply(
+    `👋 Привет, ${ctx.from.first_name || "друг"}!\n\n` +
       `Я — бот *Moki* для изучения испанского через сказки и рассказы.\n` +
       `📖 Читай и слушай адаптированные истории по уровням A1–B2.\n\n` +
-      `💖 Поддержи проект командой /donate\n\n` +
       `Выбери свой уровень 👇`,
     {
       parse_mode: "Markdown",
@@ -52,7 +65,7 @@ bot.hears("🏰 Сказки", async (ctx) => {
   try {
     const res = await axios.get(`${API_BASE_URL}/fairy-tales`);
     const tales = res.data.filter(
-      (tale) => tale.level.toUpperCase() === selectedLevel
+      (t) => t.level.toUpperCase() === selectedLevel
     );
 
     if (tales.length === 0) {
@@ -64,9 +77,7 @@ bot.hears("🏰 Сказки", async (ctx) => {
     ctx.reply(
       "📚 Вот список сказок:",
       Markup.inlineKeyboard(
-        tales.map((tale) => [
-          Markup.button.callback(tale.title, `TALE_${tale.slug}`),
-        ])
+        tales.map((t) => [Markup.button.callback(t.title, `TALE_${t.slug}`)])
       )
     );
   } catch (err) {
@@ -102,8 +113,7 @@ bot.action("READ", (ctx) => {
 bot.action("LISTEN", (ctx) => {
   const tale = userSession.get(ctx.from.id)?.selectedTale;
   if (!tale?.audio_url) return ctx.answerCbQuery("Аудио недоступно");
-
-  ctx.replyWithVoice({ url: tale.audio_url }); // ✅ отправляем как voice
+  ctx.replyWithVoice({ url: tale.audio_url });
 });
 
 bot.action("BACK_TO_LIST", (ctx) => {
@@ -111,9 +121,7 @@ bot.action("BACK_TO_LIST", (ctx) => {
   ctx.reply(
     "📚 Список сказок:",
     Markup.inlineKeyboard(
-      tales.map((tale) => [
-        Markup.button.callback(tale.title, `TALE_${tale.slug}`),
-      ])
+      tales.map((t) => [Markup.button.callback(t.title, `TALE_${t.slug}`)])
     )
   );
 });
@@ -122,7 +130,7 @@ bot.hears("📘 Рассказы", (ctx) => ctx.reply("📖 Список рас�
 bot.hears("⏳ Времена", (ctx) => ctx.reply("⏳ Времена испанского языка…"));
 bot.hears("❤️ Избранное", (ctx) => ctx.reply("❤️ Твои избранные истории…"));
 bot.hears("🙏 Поддержать", (ctx) =>
-  ctx.reply(`🙏 Поддержать проект\n👉 https://boosty.to/yourpage`)
+  ctx.reply("🙏 Поддержать проект\n👉 https://boosty.to/yourpage")
 );
 bot.hears("ℹ️ Сменить уровень", (ctx) => {
   selectedLevel = null;
