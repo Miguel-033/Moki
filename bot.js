@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const API_BASE_URL = "https://moki-bd.onrender.com";
-const START_IMAGE_URL = "https://moki-image.vercel.app/moki-avatar.png";
+const START_IMAGE_URL = "https://moki-img.vercel.app/moki-avatar.png";
 
 let selectedLevel = null;
 const userSession = new Map();
