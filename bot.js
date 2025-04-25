@@ -72,8 +72,13 @@ bot.hears("🏰 Сказки", async (ctx) => {
   }
 
   try {
-    await ensureServerAwake(); // ⬅️ Пингуем сервер перед запросом
+    // 1. Сообщение о загрузке
+    await ctx.reply("⏳ Пожалуйста, подождите, загружаю список сказок...");
 
+    // 2. Пингуем сервер
+    await ensureServerAwake();
+
+    // 3. Загружаем сказки
     const res = await axios.get(`${API_BASE_URL}/fairy-tales`);
     const tales = res.data.filter(
       (t) => t.level.toUpperCase() === selectedLevel
