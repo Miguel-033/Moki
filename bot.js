@@ -20,6 +20,16 @@ const mainMenuKeyboard = Markup.keyboard([
   ["🙏 Поддержать", "ℹ️ Сменить уровень"],
 ]).resize();
 
+// 🔵 Функция для пробуждения сервера
+async function ensureServerAwake() {
+  try {
+    await axios.get(`${API_BASE_URL}/`);
+    console.log("✅ Сервер успешно пинганут");
+  } catch (error) {
+    console.error("⚠️ Ошибка пробуждения сервера:", error.message);
+  }
+}
+
 bot.start(async (ctx) => {
   selectedLevel = null;
   await ctx.replyWithPhoto(
@@ -62,6 +72,8 @@ bot.hears("🏰 Сказки", async (ctx) => {
   }
 
   try {
+    await ensureServerAwake(); // ⬅️ Пингуем сервер перед запросом
+
     const res = await axios.get(`${API_BASE_URL}/fairy-tales`);
     const tales = res.data.filter(
       (t) => t.level.toUpperCase() === selectedLevel
